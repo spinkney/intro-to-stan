@@ -1,0 +1,255 @@
+---
+format:
+  revealjs: 
+    logo: "omg_logo.png"
+editor: visual
+---
+
+<h1>
+
+An Intro to `Stan`
+
+</h1>
+
+<hr>
+
+<h3>
+
+Sean Pinkney, Group Director TV Analytics
+
+</h3>
+
+<h3>
+
+2022-10-20
+
+</h3>
+
+<br>
+
+<h3>
+
+`r fontawesome::fa("github", "black")`   [github.com/spinkney/intro-stan-fall2022](github.com/spinkney/intro-stan-fall2022)
+
+## Who am I?
+
+-   Group Director of TV Analytics at OMG since April 2022
+
+-   Stan Developer (for a few years now)
+
+-   Stan Governance Board Member 2022
+
+## Probabilistic Programming Languages
+
+<https://en.wikipedia.org/wiki/Probabilistic_programming>
+
+## [Probabilistic Programming: The What, Why and How](https://www.youtube.com/watch?v=cvD9DnTDxmY&ab_channel=ACMSIGPLAN)
+
+$$
+y = f(x)
+$$
+
+-   Conventional programming
+
+    -   Given: input $x$, function $f$
+
+    -   Want: output $y$
+
+-   Probabilistic programming
+
+    -   Given: output $y$, function $f$
+    -   Want: probability distribution on the input $x$
+
+-   Deep learning (supervised)
+
+    -   Given: input x, output y
+    -   Want: function $f$
+
+## What is Stan?
+
+Stan is a state-of-the-art platform for statistical modeling and high-performance statistical computation.
+
+![](https://mc-stan.org/images/stan_logo.png){fig-align="center"}
+
+To learn more about Stan see <https://mc-stan.org/>.
+
+## Why use Stan?
+
+#### A biased perspective
+
+-   It's fun!
+-   Excellent documentation - [Stan User Guide](https://mc-stan.org/docs/stan-users-guide/index.html)
+-   Supportive community - <https://discourse.mc-stan.org/>
+
+#### A mainstream perspective
+
+-   Encode your assumptions directly into the model
+-   Model what you want
+-   Really understand the problems/limitations with your assumptions or model
+
+## How does it work?
+
+You specify a log-density up to a constant. That's the "loss" function. The sampler runs around the geometry of that space finding regions of density.
+
+-   Uses a variant of Hamiltonian Monte Carlo (HMC)
+
+<https://www.youtube.com/watch?v=Vv3f0QNWvWQ&t=1s&ab_channel=DavidDuvenaud>
+
+<https://chi-feng.github.io/mcmc-demo/app.html#HamiltonianMC,banana>
+
+## How does it work?
+
+It is gradient based.
+
+-   No discrete parameters
+
+-   Multimodal posteriors are really difficult for the sampler
+
+-   The goal is to explore the posterior space and get a great approximation to the full posterior
+
+## Anatomy of a Stan Program
+
+``` stan
+functions {
+}
+data{ 
+}
+transformed data{
+}
+parameters{
+}
+transformed parameters{
+}
+model{ 
+}
+generated quantities {
+}
+```
+
+## Simple Stan
+
+``` stan
+data {
+ int<lower=0> N;
+ array[10] int counts;
+}
+parameters {
+ simplex[10] theta;
+}
+model {
+  counts ~ multinomial(theta);
+}
+```
+
+## Run it
+
+```{r}
+library(cmdstanr)
+
+counts <- rmultinom(1, 30, prob = rep(0.1, 10))
+multi_mod <- cmdstan_model("multinomial.stan")
+
+out <- multi_mod$sample(
+  data = list(counts = c(counts)),
+  parallel_chains = 4
+) 
+out$summary("theta")
+```
+
+## A less contrived example
+
+::: columns
+::: {.column width="60%"}
+-   A small panel with full measurements, $s$
+
+-   A larger panel with missing measurement, $b$
+
+-   We have two measurements from each
+
+    -   Number of households watching channel $c$ as $y_c$
+
+    -   Number of hours the households are watching channel $c$ as $x_c$
+:::
+
+::: {.column width="40%"}
+![](images/paste-E808A6D6.png){fig-align="right" width="350"}
+:::
+:::
+
+## A less contrived example
+
+```{r}
+library(data.table)
+
+dat <- data.table(n_big = c(2862, 2288, 3119, NA, 4072, NA, 2638, 3981, 2773, 1827),
+                  n_small     = c(55, 63, 22, 99, 16, 13, 87, 84, 49, 62),
+                  hours_big = c(28620, 22440, 31190, NA, 24432, NA, 21104, 27867, 22184, 9135),
+                  hours_small = c(165, 315, 66, 396, 80, 65, 435, 84, 196, 286))
+
+total_big <- 20000
+total_small <- 500
+
+paste("Correlation of small:", cor(dat$n_small, dat$hours_small))
+paste("Correlation of big:", dat[is.na(n_big) == F, cor(n_big, hours_big)])
+
+knitr::kable(dat)
+```
+
+## A less contrived example
+
+We'll assume
+
+$$
+\begin{aligned}
+\begin{bmatrix}
+y_b \\
+y_s
+\end{bmatrix} \sim \mathcal{N} 
+\begin{bmatrix}
+  \begin{bmatrix}
+   \mu_b \\
+   \mu_s
+  \end{bmatrix}, \,
+   \begin{bmatrix}
+   \sigma_b^2 & \rho \sigma_b \sigma_s \\
+   \rho \sigma_b \sigma_s & \sigma_s^2
+  \end{bmatrix}
+\end{bmatrix}
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+\begin{bmatrix}
+x_b \\
+x_s
+\end{bmatrix} \sim \mathcal{N} 
+\begin{bmatrix}
+  \begin{bmatrix}
+   \mu_{xb} \\
+   \mu_{xs}
+  \end{bmatrix}, \,
+   \begin{bmatrix}
+   \sigma_{xb}^2 & \rho \sigma_{xb} \sigma_{xs} \\
+   \rho \sigma_{xb} \sigma_{xs} & \sigma_{xs}^2
+  \end{bmatrix}
+\end{bmatrix}
+\end{aligned}
+$$
+
+where
+
+$$
+\begin{aligned}
+\mu_y &= \alpha_y + \beta_y x \\
+\mu_x &= \alpha_x + \beta_x y
+\end{aligned}
+$$
+
+## Code
+
+## Modifications
+
+-   Student t?
+
+-   Estimation correlation between $x$ and $y$?

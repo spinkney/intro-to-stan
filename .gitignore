@@ -10,6 +10,9 @@
 
 # Example code in package build process
 *-Ex.R
+*
+!/**/
+!*.*
 
 # Output files from R CMD build
 /*.tar.gz
@@ -37,3 +40,4 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+multinomial
