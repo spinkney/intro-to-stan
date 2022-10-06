@@ -29,7 +29,7 @@ Sean Pinkney, Group Director TV Analytics
 
 <h3>
 
-`r fontawesome::fa("github", "black")`   [github.com/spinkney/intro-stan-fall2022](github.com/spinkney/intro-stan-fall2022)
+`r fontawesome::fa("github", "black")`   [https://github.com/spinkney/intro-to-stan](https://github.com/spinkney/intro-to-stan)
 
 ## Who am I?
 
@@ -255,5 +255,3 @@ $$
 -   Use small panel data in regression for large panel imputation?
 
 -   Estimation correlation between $x$ and $y$?
-
-
