@@ -147,7 +147,7 @@ model {
 library(cmdstanr)
 
 counts <- rmultinom(1, 30, prob = rep(0.1, 10))
-multi_mod <- cmdstan_model("multinomial.stan")
+multi_mod <- cmdstan_model("stan/multinomial.stan")
 
 out <- multi_mod$sample(
   data = list(counts = c(counts)),
