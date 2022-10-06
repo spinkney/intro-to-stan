@@ -31,7 +31,7 @@ data_normal <- list(
   known = which(!is.na(dat[, n_big]))
 )
 
-mod <- cmdstan_model("panel_fusion_student.stan")
+mod <- cmdstan_model("panel_fusion_simple.stan")
 fit <- mod$sample(
   data = data_normal,
   parallel_chains = 4,
