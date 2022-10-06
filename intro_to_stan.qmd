@@ -29,7 +29,7 @@ Sean Pinkney, Group Director TV Analytics
 
 <h3>
 
-`r fontawesome::fa("github", "black")`   [https://github.com/spinkney/intro-to-stan](https://github.com/spinkney/intro-to-stan)
+`r fontawesome::fa("github", "black")`   <https://github.com/spinkney/intro-to-stan>
 
 ## Who am I?
 

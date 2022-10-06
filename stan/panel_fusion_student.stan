@@ -64,7 +64,7 @@ model {
   alpha ~ normal(0, 4);
   beta ~ std_normal();
    
-  sigma ~ exponential(1);
+  sigma ~ exponential(0.25);
 
   L ~ lkj_corr_cholesky(1);
   nu ~ exponential(1);

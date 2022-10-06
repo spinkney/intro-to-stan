@@ -41,3 +41,4 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 multinomial
+intro_to_stan_files/.DS_Store
